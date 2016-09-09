@@ -1,19 +1,42 @@
+% Assignment 1
+% Author Simon Rüegg
+
+% daughters
 female(ann).
 female(lis).
+
+% son
+male(bill).
+
+% mother
 female(marie).
 
+% orphan
+female(alice).
+
+% grandmother
+female(grace).
+
+% fahter
 male(joe).
-male(bill).
+
+% grandfather
 male(jason).
 
-mother_of(ann, marie).
-father_of(ann, joe).
+parent_of(ann, marie).
+parent_of(ann, joe).
+patent_of(lis, marie).
+parent_of(lis, joe).
+parent_of(bill, joe).
+parent_of(bill, marie).
 
-mother_of(lis, marie).
-father_of(lis, joe).
+parent_of(joe, jason).
+parent_of(joe, grace).
 
-father_of(joe, jason).
+sibling_of(X, Y) :- parent_of(X, Z), parent_of(Y, Z).
 
-parent_of(X, Y) :- mother_of(X, Y) ; father_of(X, Y).
+father_of(X, Y) :- male(Y) , parent_of(X, Y).
+mother_of(X, Y) :- female(Y) , parent_of(X, Y).
 
-grandfather_of(X, Y) :- father_of(X, Z) , father_of(Z, Y).
+grandfather_of(X, Y) :- parent_of(X, Z) , father_of(Z, Y).
+grandmother_of(X, Y) :- parent_of(X, Z) , mother_of(Z, Y).
