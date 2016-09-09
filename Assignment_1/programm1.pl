@@ -5,9 +5,6 @@
 female(ann).
 female(lis).
 
-% son
-male(bill).
-
 % mother
 female(marie).
 
@@ -17,6 +14,9 @@ female(alice).
 % grandmother
 female(grace).
 
+% son
+male(bill).
+
 % fahter
 male(joe).
 
@@ -25,7 +25,7 @@ male(jason).
 
 parent_of(ann, marie).
 parent_of(ann, joe).
-patent_of(lis, marie).
+parent_of(lis, marie).
 parent_of(lis, joe).
 parent_of(bill, joe).
 parent_of(bill, marie).
@@ -33,7 +33,7 @@ parent_of(bill, marie).
 parent_of(joe, jason).
 parent_of(joe, grace).
 
-sibling_of(X, Y) :- parent_of(X, Z), parent_of(Y, Z).
+sibling_of(X, Y) :- parent_of(X, Z), parent_of(Y, Z), not(X=Y).
 
 father_of(X, Y) :- male(Y) , parent_of(X, Y).
 mother_of(X, Y) :- female(Y) , parent_of(X, Y).
