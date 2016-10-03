@@ -1,6 +1,7 @@
 
 program
 bms
+BMSOut.txt
 
 # Prerequisites
 *.d
