@@ -11,21 +11,23 @@
 #include <ctype.h>
 
 #define BUFFER_SIZE 256
+#define MAX_LABEL_LENGTH 7
 
 FILE *open_file(const char *filename, const char *mode);
 uint8_t read_lines(FILE *input_file, FILE *output_file);
 bool validate_line(const char *line, char *error_message);
+bool validate_label(const char *line, char *error_message);
 
 const char *output_filename = "BMSOut.txt";
 
 const char ASTERISK = '*', SPACE = ' ';
 
-enum STATE{
+typedef enum {
     COMMENT,
     LABEL,
     OPERAND,
     ERROR
-};
+} STATE_T;
 
 int main(int argc, char *argv[]) {
 
@@ -98,9 +100,35 @@ uint8_t read_lines(FILE *input_file, FILE *output_file){
  * Error Handling: If line is invalid, error message is saved to error_message pointer.
  */
 bool validate_line(const char *line, char *error_message){
-    if(line[0] != SPACE && line[0] != ASTERISK && !isalpha(line[0])){
+    STATE_T state;
+    if(line[0] == SPACE){
+        state = OPERAND;
+    } else if(line[0] == ASTERISK){
+        state = COMMENT;
+    }else if (isalpha(line[0])){
+        return validate_label(line, error_message);
+    }else{
+        state = ERROR;
         strcpy(error_message, "Non valid character in column 1");
         return false;
     }
     return true;
-} 
+}
+
+bool validate_label(const char *label, char *error_message){
+    for(int i=0; i<strlen(label) && label[i] != SPACE; i++){
+        if(!isalpha(label[i])){
+            strcpy(error_message, "Label contains non alphabetic character");
+            return false;
+        }
+        if(!isupper(label[i])){
+            strcpy(error_message, "Label contains lowercase character");
+            return false;
+        }
+        if(i>MAX_LABEL_LENGTH-1){
+            strcpy(error_message, "Label too long");
+            return false;
+        }
+    }
+    return true;
+}
