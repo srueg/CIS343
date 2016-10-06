@@ -106,10 +106,17 @@ bool validate_line(const char *line, char *error_message){
     } else if(line[0] == ASTERISK){
         state = COMMENT;
     }else if (isalpha(line[0])){
-        return validate_label(line, error_message);
+        state = LABEL;
+        if(!validate_label(line, error_message)){
+            return false;
+        }
     }else{
         state = ERROR;
         strcpy(error_message, "Non valid character in column 1");
+        return false;
+    }
+    if(state != COMMENT && (line[7] != SPACE || line[8] != SPACE)){
+        strcpy(error_message, "Non-Blank characters in columns 8 or 9");
         return false;
     }
     return true;
