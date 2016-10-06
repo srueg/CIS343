@@ -8,14 +8,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define BUFFER_SIZE 256
 
 FILE *open_file(const char *filename, const char *mode);
-void read_lines(FILE *input_file, FILE *output_file);
+uint8_t read_lines(FILE *input_file, FILE *output_file);
 bool validate_line(const char *line, char *error_message);
 
 const char *output_filename = "BMSOut.txt";
+
+const char ASTERISK = '*', SPACE = ' ';
+
+enum STATE{
+    COMMENT,
+    LABEL,
+    OPERAND,
+    ERROR
+};
 
 int main(int argc, char *argv[]) {
 
@@ -27,7 +37,13 @@ int main(int argc, char *argv[]) {
     FILE *input_file = open_file(argv[1], "r");
     FILE *output_file = open_file(output_filename, "w");
 
-    read_lines(input_file, output_file);
+    uint8_t error_count = read_lines(input_file, output_file);
+
+    // close file handles
+    fclose(output_file);
+    fclose(input_file);
+
+    printf("End of Processing - %d errors encountered\n", error_count);
     return EXIT_SUCCESS;
 }
 
@@ -54,12 +70,13 @@ FILE *open_file(const char *filename, const char *mode){
  * Author: Simon Rüegg
  * Purpose: Loops through all the lines in the input_file and checks them for errors.
  * Inputs: File handle for input- and output file.
- * Outputs: -
+ * Outputs: occured error count
  * Error Handling: If errors occure, exits and prints error message.
  */
-void read_lines(FILE *input_file, FILE *output_file){
+uint8_t read_lines(FILE *input_file, FILE *output_file){
     char line[BUFFER_SIZE];
     char error_message[BUFFER_SIZE];
+    uint8_t errors = 0;
 
     while (fgets(line, BUFFER_SIZE, input_file)) {
         if(validate_line(line, error_message)){
@@ -67,11 +84,10 @@ void read_lines(FILE *input_file, FILE *output_file){
         }else{
             line[strcspn(line, "\n")-1] = 0;
             fprintf(output_file, "%s %s\n", line, error_message);
+            errors++;
         }
     }
-
-    fclose(output_file);
-    fclose(input_file);
+    return errors;
 }
 
 /*
@@ -82,6 +98,9 @@ void read_lines(FILE *input_file, FILE *output_file){
  * Error Handling: If line is invalid, error message is saved to error_message pointer.
  */
 bool validate_line(const char *line, char *error_message){
-    strcpy(error_message, "Error: ");
-    return false;
+    if(line[0] != SPACE && line[0] != ASTERISK && !isalpha(line[0])){
+        strcpy(error_message, "Non valid character in column 1");
+        return false;
+    }
+    return true;
 } 
