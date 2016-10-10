@@ -26,7 +26,7 @@ const char *OUTPUT_FILENAME = "BMSOut.txt", *END = "END";
 const char ASTERISK = '*', SPACE = ' ';
 
 const char *VALID_OPCODES[] = { "DFHMDI", "DFHMDF", "DFHMSD" };
-const char VALID_OPCODES_COUNT = 3;
+const uint8_t VALID_OPCODES_COUNT = 3;
 
 typedef enum {
     COMMENT,
@@ -121,7 +121,7 @@ bool validate_line(const char *line, char *error_message){
         return false;
     }
 
-    if(!strncmp(&line[9], END, 3)){
+    if(strncmp(&line[9], END, 3) == 0){
         state = ENDED;
         return true;
     }
@@ -199,8 +199,8 @@ bool validate_opcode(const char *line, char *error_message){
 
     strncpy(opcode, &line[9], 6);
     opcode[6] = 0;
-    for(int i=0; i<VALID_OPCODES_COUNT; i++){
-        if(!strcmp(opcode, VALID_OPCODES[i])){
+    for(uint8_t i=0; i<VALID_OPCODES_COUNT; i++){
+        if(strcmp(opcode, VALID_OPCODES[i]) == 0){
             if(strlen(line) < 17 || strlen(line) > MAX_LINE_LENGTH || line[15] != SPACE || line[16] == SPACE){
                 strcpy(error_message, "Op-code in wrong column");
                 return false;
@@ -220,8 +220,8 @@ bool validate_opcode(const char *line, char *error_message){
  * Error Handling: If operand is invalid, error message is saved to error_message pointer.
  */
 bool validate_operand(const char *line, char *error_message){
-    int line_length = strlen(line);
-    for(int i=0; i<15; i++){
+    size_t line_length = strlen(line);
+    for(uint8_t i=0; i<15; i++){
         if(line[i] != SPACE){
             strcpy(error_message, "Operand in wrong column");
             return false;
