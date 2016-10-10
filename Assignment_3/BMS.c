@@ -10,23 +10,30 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-#define BUFFER_SIZE 256
+#define LINE_BUFFER_SIZE 256
 #define MAX_LABEL_LENGTH 7
+#define MAX_LINE_LENGTH 74
 
 FILE *open_file(const char *filename, const char *mode);
 uint8_t read_lines(FILE *input_file, FILE *output_file);
 bool validate_line(const char *line, char *error_message);
-bool validate_label(const char *line, char *error_message);
+bool validate_label(const char *label, char *error_message);
+bool validate_opcode(const char *line, char *error_message);
+bool validate_operand(const char *line, char *error_message);
 
-const char *output_filename = "BMSOut.txt";
+const char *OUTPUT_FILENAME = "BMSOut.txt", *END = "END";
 
 const char ASTERISK = '*', SPACE = ' ';
+
+const char *VALID_OPCODES[] = { "DFHMDI", "DFHMDF", "DFHMSD" };
+const char VALID_OPCODES_COUNT = 3;
 
 typedef enum {
     COMMENT,
     LABEL,
     OPERAND,
-    ERROR
+    OPCODE,
+    ENDED
 } STATE_T;
 
 int main(int argc, char *argv[]) {
@@ -37,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
     
     FILE *input_file = open_file(argv[1], "r");
-    FILE *output_file = open_file(output_filename, "w");
+    FILE *output_file = open_file(OUTPUT_FILENAME, "w");
 
     uint8_t error_count = read_lines(input_file, output_file);
 
@@ -76,11 +83,11 @@ FILE *open_file(const char *filename, const char *mode){
  * Error Handling: If errors occure, exits and prints error message.
  */
 uint8_t read_lines(FILE *input_file, FILE *output_file){
-    char line[BUFFER_SIZE];
-    char error_message[BUFFER_SIZE];
+    char line[LINE_BUFFER_SIZE];
+    char error_message[64];
     uint8_t errors = 0;
 
-    while (fgets(line, BUFFER_SIZE, input_file)) {
+    while (fgets(line, LINE_BUFFER_SIZE, input_file)) {
         if(validate_line(line, error_message)){
             fprintf(output_file, "%s", line);
         }else{
@@ -100,18 +107,43 @@ uint8_t read_lines(FILE *input_file, FILE *output_file){
  * Error Handling: If line is invalid, error message is saved to error_message pointer.
  */
 bool validate_line(const char *line, char *error_message){
-    STATE_T state;
-    if(line[0] == SPACE){
-        state = OPERAND;
-    } else if(line[0] == ASTERISK){
+    static STATE_T state;
+
+    // check for comment
+    if(line[0] == ASTERISK){
         state = COMMENT;
-    }else if (isalpha(line[0])){
+        return true;
+    }
+
+    // check if 'END' appeared before
+    if(state == ENDED && strlen(line) > 0){
+        strcpy(error_message, "Code after END");
+        return false;
+    }
+
+    if(!strncmp(&line[9], END, 3)){
+        state = ENDED;
+        return true;
+    }
+
+    if(line[0] == SPACE){
+        if(line[9] == SPACE){
+            state = OPERAND;
+            if(!validate_operand(line, error_message)){
+                return false;
+            }
+        }else{
+            state = OPCODE;
+            if(!validate_opcode(line, error_message)){
+                return false;
+            }
+        }
+    } else if (isalpha(line[0])){
         state = LABEL;
         if(!validate_label(line, error_message)){
             return false;
         }
-    }else{
-        state = ERROR;
+    } else{
         strcpy(error_message, "Non valid character in column 1");
         return false;
     }
@@ -122,6 +154,14 @@ bool validate_line(const char *line, char *error_message){
     return true;
 }
 
+
+/*
+ * Author: Simon Rüegg
+ * Purpose: Checks a label for validity: 1 to 7 upper case letters.
+ * Inputs: Label to check and pointer to pass error message.
+ * Outputs: true if label is valid, false for invalid (error message stored to *error_message).
+ * Error Handling: If label is invalid, error message is saved to error_message pointer.
+ */
 bool validate_label(const char *label, char *error_message){
     for(int i=0; i<strlen(label) && label[i] != SPACE; i++){
         if(!isalpha(label[i])){
@@ -136,6 +176,60 @@ bool validate_label(const char *label, char *error_message){
             strcpy(error_message, "Label too long");
             return false;
         }
+    }
+    return true;
+}
+
+/*
+ * Author: Simon Rüegg
+ * Purpose: Checks a line for valid op-code.
+ * Inputs: Line to check and pointer to pass error message.
+ * Outputs: true if op-code in line is valid, false for invalid (error message stored to *error_message).
+ * Error Handling: If Opcode is invalid, error message is saved to error_message pointer.
+ */
+bool validate_opcode(const char *line, char *error_message){
+    char opcode[7];
+
+    for(int i=0; i<9; i++){
+        if(line[i] != SPACE){
+            strcpy(error_message, "Op-code in wrong column");
+            return false;
+        }
+    }
+
+    strncpy(opcode, &line[9], 6);
+    opcode[6] = 0;
+    for(int i=0; i<VALID_OPCODES_COUNT; i++){
+        if(!strcmp(opcode, VALID_OPCODES[i])){
+            if(strlen(line) < 17 || strlen(line) > MAX_LINE_LENGTH || line[15] != SPACE || line[16] == SPACE){
+                strcpy(error_message, "Op-code in wrong column");
+                return false;
+            }
+            return true;
+        }
+    }
+    strcpy(error_message, "Illegal Op-code");
+    return false;
+}
+
+/*
+ * Author: Simon Rüegg
+ * Purpose: Checks a line for valid operand
+ * Inputs: Line to check and pointer to pass error message.
+ * Outputs: true if operand in line is valid, false for invalid (error message stored to *error_message).
+ * Error Handling: If operand is invalid, error message is saved to error_message pointer.
+ */
+bool validate_operand(const char *line, char *error_message){
+    int line_length = strlen(line);
+    for(int i=0; i<15; i++){
+        if(line[i] != SPACE){
+            strcpy(error_message, "Operand in wrong column");
+            return false;
+        }
+    }
+    if(line_length < 16 || line_length > MAX_LINE_LENGTH || line[16] == SPACE){
+        strcpy(error_message, "Illegal operand");
+        return false;
     }
     return true;
 }
