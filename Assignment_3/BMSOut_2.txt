@@ -1,0 +1,50 @@
+2BCDMS1  DFHMSD TYPE=MAP,                                              X Non valid character in column 1
+               LANG=COBOL,                                             X
+               MODE=INOUT,                                             X
+               TIOAPFX=YES,                                            X
+               TERM=3270-2,                                            X
+               MAPATTS=(COLOR,HILIGHT),                                X
+               STORAGE=AUTO,                                           X
+               CTRL=FREEKB
+***************************************************************
+  Only one Map in MapSet Op-code in wrong column
+***************************************************************
+MAPABC12 DFHMDI SIZE=(24,80),                                          X Label contains non alphabetic character
+               LINE=1,                                                 X
+               COLUMN=1
+***************************************************************
+*  Defining individual Fields
+*  First field is a constant
+***************************************************************
+        DFHMDF POS=(10,10),                                            X Op-code in wrong column
+               LENGTH=08,                                              X
+               INITIAL='ABC INC.',                                     X
+               ATTRB=(BRT,PROT)
+***************************************************************
+&  MESSAGE CONSTANT                                         Non valid character in column 1
+***************************************************************
+         DFHMDFFPOS=(22,10),                                           X Op-code in wrong column
+               LENGTH=8,                                               X
+                 COLOR=BLUE,                                           X Illegal operand
+               ATTRB=(BRT,PROT)                                        X
+                 INITIAL='MESSAGE:' Illegal operand
+***************************************************************
+*  MESSAGE VARIABLE
+***************************************************************
+mESSAGE  DFHMDF POS=(22,19),                                           X Label contains lowercase character
+               LENGTH=50,                                              X
+               ATTRB=PROT
+***************************************************************
+*  NOMFAIL USED TO PREVENT MAPFAILS BY INSURING THAT AT LEAST
+*   ONE BYTE OF DATA IS ALWAYS PASSED BETWEEN MAP AND PROGRAM
+*   THAT CALLS IT
+***************************************************************
+NOMFAIL  DFHMFD POS=(23,79),                                           X
+             LENGTH=1,                                                 X Operand in wrong column
+             ATTRB=(DRK,PROT,FSET),                                    X Operand in wrong column
+             INITIAL=' ' Operand in wrong column
+***************************************************************
+* INDICATES END OF MAPSET
+***************************************************************
+         DFHMSD TYPE=FINAL                                           
+         END
