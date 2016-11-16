@@ -6,29 +6,20 @@
     Due Date: November 18, 2016, 11:59PM
 =end
 
-# Source: http://stackoverflow.com/questions/2641329/programming-technique-how-to-create-a-simple-card-game
-class Card
-    SUITS = %w(Heart Diamond Spade Club)
-    RANKS = %w(2 3 4 5 6 7 8 9 10 J Q K A)
+require_relative 'helpers'
+require_relative 'game'
 
-    attr_accessor :rank, :suit
 
-    def initialize(id)
-        self.rank = RANKS[id % 13]
-        self.suit = SUITS[id % 4]
+puts "Welcome to the ultimate solitaire game..."
+Helpers.print_instructions()
+
+while true
+    case Helpers.get_instruction()
+        when Instructions::LEADER_BOARD
+            Helpers.show_leader_board()
+        when Instructions::PLAY
+            Game.play(false)
+        when Instructions::PLAY_HIDDEN
+            Game.play(true)
     end
-end
-
-class Deck
-    attr_accessor :cards
-    def initialize
-        # shuffle array and init each Card
-        self.cards = (0..51).to_a.shuffle.collect { |id| Card.new(id) }
-    end
-end
-
-deck = Deck.new
-while deck.cards.any? do
-    card = deck.cards.pop()
-    puts "#{card.rank} #{card.suit}"
 end
