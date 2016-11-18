@@ -13,8 +13,23 @@ class Game
         end
 
         deck = Deck.new
+        hand = Array.new(4)
         while deck.cards.any? do
-            card = deck.cards.pop()
+            if hand[0] == nil then hand[0] = deck.cards.pop() end
+            if hand[1] == nil then hand[1] = deck.cards.pop() end
+            if hand[2] == nil then hand[2] = deck.cards.pop() end
+            if hand[3] == nil then hand[3] = deck.cards.pop() end
+
+
+            if hand[0].rank == hand[3].rank
+                # discard all cards
+                hand.clear()
+            elsif hand[0].suit == hand[3].suit
+                # discard middle two cards
+                hand[1] = hand[2] = nil
+            else
+
+            end
         end
     end
     
