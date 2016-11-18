@@ -47,19 +47,24 @@ class Helpers
         end
     end
 
-    def self.get_highscore
-        min = 1000
-        Helpers.get_all_highscores.each do |score|
-            if score[:score] < min then min = score[:score] end
+    def self.get_lowest_highscore
+        max = 0
+        scores = Helpers.get_all_highscores
+        if scores.size < 5 then return 1000 end
+        scores.each do |score|
+            if score[:score] > max then max = score[:score] end
         end
-        min
+        puts max
+        max
     end
 
     def self.write_highscore name, score
+        name.strip!
         scores = Helpers.get_all_highscores
         if scores.size < 5
             scores.push({ :name => name, :score => score })
-            scores.sort_by { |s| s["score"] }
+            scores = scores.sort_by { |s| s["score"] }
+            scores.reverse!
         else
             scores.each do |s|
                 if s[:score].to_i() > score
@@ -83,7 +88,7 @@ class Helpers
         File.open(LEADER_BOARD, "r") do |f|
             f.each_line do |line|
                 value = line.split(":")
-                score = { :name => value[0], :score => value[1] }
+                score = { :name => value[0], :score => value[1].strip.to_i }
                 scores.push(score)
             end
         end

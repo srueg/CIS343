@@ -18,8 +18,16 @@ while true
         when Instructions::LEADER_BOARD
             Helpers.show_leader_board()
         when Instructions::PLAY
-            Game.play(false)
+            score = Game.play(false)
         when Instructions::PLAY_HIDDEN
-            Game.play(true)
+            score = Game.play(true)
+    end
+    if score != nil
+        if score < Helpers.get_lowest_highscore()
+            puts "Congratulation, you scored a new highscore (#{score}). Please enter your name: "
+            name = gets
+            Helpers.write_highscore(name, score)
+        end
+        score = nil
     end
 end
