@@ -48,7 +48,10 @@ class Game
                 hand.push(open_hand.shift())
                 open_hand.push(deck.pop())
             end
-            if !hidden && gets.strip.upcase == Instructions::EXIT then exit end
+            if !hidden
+                puts "Press return to continue, x to exit."
+                if gets.strip.upcase == Instructions::EXIT then exit end
+            end
         end
         score = open_hand.compact.inject(0) {|sum, card| sum + card.rank}
         score += hand.compact.inject(0) {|sum, card| sum + card.rank}

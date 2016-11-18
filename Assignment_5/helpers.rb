@@ -57,7 +57,7 @@ class Helpers
     def self.show_leader_board
         puts "Leaders: "
         Helpers.get_all_highscores.each do |score|
-            puts "#{score[:name]} #{score[:score]}"
+            puts "#{score[:name]}: #{score[:score]}"
         end
     end
 
