@@ -4,6 +4,7 @@
     Author: Simon Rüegg
     Assignment: Programming Project Three in Ruby – Car Solitaire
     Due Date: November 18, 2016, 11:59PM
+    Sources: https://ruby-doc.org
 =end
 
 require_relative 'helpers'

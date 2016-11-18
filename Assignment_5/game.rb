@@ -2,9 +2,16 @@
     Author: Simon Rüegg
     Assignment: Programming Project Three in Ruby – Car Solitaire
     Due Date: November 18, 2016, 11:59PM
+    Sources: https://ruby-doc.org
 =end
 
 class Game
+=begin
+    Author: Simon Ruegg
+    Purpose: Start a new game
+    Input: If the game should be hidden or not
+    Output: Score of the game
+=end
     def self.play hidden
         if hidden
             puts "New hidden game started"
@@ -57,11 +64,21 @@ class Card
 
     attr_accessor :rank, :suit
 
+=begin
+    Author: Simon Ruegg
+    Purpose: Initialize a new card with a value
+    Input: Numerical value for card (suit and rank)
+=end
     def initialize(id)
         self.rank = RANKS[id % 13].to_i
         self.suit = SUITS[id % 4]
     end
 
+=begin
+    Author: Simon Ruegg
+    Purpose: Get the string representation of a card to print
+    Outpu: Stirng representation of a card
+=end
     def to_s
         rank = case self.rank
             when self.rank <= 10
@@ -80,13 +97,25 @@ class Card
 end
 
 class Deck
+
     attr_accessor :cards
+
+=begin
+    Author: Simon Ruegg
+    Purpose: Initialize a new shuffled card deck
+    Output: Shuffled card deck with 52 cards
+=end
     def initialize
         # shuffle array and init each Card
         # Source: http://stackoverflow.com/questions/2641329/programming-technique-how-to-create-a-simple-card-game
         self.cards = (0..51).to_a.shuffle.collect { |id| Card.new(id) }
     end
 
+=begin
+    Author: Simon Ruegg
+    Purpose: Get the top most card from the deck
+    Output: Top most card from deck
+=end
     def pop
         self.cards.pop()
     end
