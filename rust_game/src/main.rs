@@ -18,6 +18,10 @@ fn main() {
             }
             Instruction::Play => Some(game::play(false)),
             Instruction::PlayHidden => Some(game::play(true)),
+            Instruction::Help => {
+                helpers::printInstructions();
+                None
+            }
             _ => None,
         };
         match score {
@@ -29,5 +33,4 @@ fn main() {
             None => continue,
         };
     }
-
 }

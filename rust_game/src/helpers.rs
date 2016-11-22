@@ -1,5 +1,9 @@
 
 use std::io;
+use std::io::BufReader;
+use std::io::BufRead;
+use std::fs::File;
+use std::path::Path;
 
 #[derive(Debug)]
 pub enum Instruction {
@@ -53,17 +57,33 @@ pub fn printLeaderBoard() {
 }
 
 pub fn getLowestHighscore() -> i32 {
-    100
+    let mut max = 0;
+    let leaders = getAllHighscore();
+    if leaders.len() < 5 {
+        return 10000;
+    }
+    for leader in leaders {
+        if leader.score > max {
+            max = leader.score;
+        }
+    }
+    max
 }
 
 pub fn writeHighscore(name: String, score: i32) {}
 
 pub fn getAllHighscore() -> Vec<Highscore> {
-    let mut vec: Vec<Highscore> = Vec::new();
-    vec.push(Highscore {
-        name: "Simon".to_string(),
-        score: 10,
-    });
-
-    vec
+    let mut highScores: Vec<Highscore> = Vec::new();
+    let f = File::open("Leaders.txt").expect("Couldn't open the file 'Leaders.txt'");
+    let file = BufReader::new(&f);
+    for line in file.lines() {
+        let l = line.unwrap();
+        let values = l.split(":").collect::<Vec<&str>>();
+        let high = Highscore {
+            name: String::from(values[0]),
+            score: values[1].trim().parse().unwrap(),
+        };
+        highScores.push(high);
+    }
+    highScores
 }
