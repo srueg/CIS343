@@ -1,9 +1,8 @@
 
-use std::io;
-use std::io::BufReader;
-use std::io::BufRead;
+use std::io::{self, Read, Write, BufReader, BufRead, BufWriter};
 use std::fs::File;
 use std::path::Path;
+use std::str;
 
 #[derive(Debug)]
 pub enum Instruction {
@@ -70,7 +69,34 @@ pub fn getLowestHighscore() -> i32 {
     max
 }
 
-pub fn writeHighscore(name: String, score: i32) {}
+pub fn writeHighscore(name: &String, score: i32) {
+    let mut highScores = getAllHighscore();
+    if highScores.len() < 5 {
+        highScores.push(Highscore {
+            name: name.clone(),
+            score: score,
+        });
+        highScores.sort_by(|a, b| a.score.cmp(&b.score));
+    } else {
+        for highScore in &mut highScores {
+            if highScore.score > score {
+                highScore.name = name.clone();
+                highScore.score = score;
+                break;
+            }
+        }
+    }
+
+    let mut data = String::new();
+
+    for highScore in highScores {
+        data = data + highScore.name.as_str() + ":" + highScore.score.to_string().as_str() + "\n";
+    }
+
+    let f = File::create("Leaders.txt").expect("Unable to write file");
+    let mut w = BufWriter::new(f);
+    w.write_all(data.as_bytes()).expect("Unable to write data");
+}
 
 pub fn getAllHighscore() -> Vec<Highscore> {
     let mut highScores: Vec<Highscore> = Vec::new();
