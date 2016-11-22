@@ -1,4 +1,7 @@
-
+// Author: Simon Rüegg
+// Assignment: Term Paper Code – Car Solitaire
+// Due Date: November 21, 2016, 11:59PM
+//
 use std::io::{self, Read, Write, BufReader, BufRead, BufWriter};
 use std::fs::File;
 use std::path::Path;

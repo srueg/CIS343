@@ -1,4 +1,7 @@
-
+// Author: Simon Rüegg
+// Assignment: Term Paper Code – Car Solitaire
+// Due Date: November 21, 2016, 11:59PM
+//
 mod helpers;
 mod game;
 use helpers::Instruction;
