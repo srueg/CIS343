@@ -58,25 +58,43 @@
      (you'll feel better if you talk about it)
     )))
 
+; by iterating the words instead of the replacement pairs the bug can be fixed 
+(define (replaceN replace-pairs word)
+  (cond ((null? replace-pairs) word)
+        ((equal? (caar replace-pairs) word)
+          (cdar replace-pairs))
+  (else (replaceN (cdr replace-pairs) word))))
+
+(define (replace-manyN replace-pairs word-list)
+  (cond ((null? word-list) '())
+  (else (let ((w (replaceN replace-pairs (car word-list))))
+          (cons w (replace-manyN replace-pairs (cdr word-list)))
+          )))
+  )
+
 (define (replace pattern replacement lst) 
     (cond ((null? lst) '()) 
         ((equal? (car lst) pattern) 
-        (cons replacement 
-        (replace pattern replacement (cdr lst)))) 
+         (cons replacement (replace pattern replacement (cdr lst)))
+        ) 
     (else 
-        (cons (car lst) 
-    (replace pattern replacement (cdr lst))))))
+        (cons (car lst) (replace pattern replacement (cdr lst))))))
 
+                     
 (define (many-replace replacement-pairs lst) 
     (cond ((null? replacement-pairs) lst) 
     (else 
-        (let ((pat-rep (car replacement-pairs))) 
-        (replace (car pat-rep)
-        (cadr pat-rep)
-    (many-replace (cdr replacement-pairs) lst))))))
+        (let
+          ((pat-rep (car replacement-pairs))) 
+          (replace (car pat-rep) (cadr pat-rep) (many-replace (cdr replacement-pairs) lst)))
+        )
+    )
+  )
 
 (define (change-person phrase)
-    (many-replace '((i you) (me you) (am are) (my your))
+    ; the bug is, that for example 'you' gets replaced by 'i' and then 'i' gets replaced by 'you' again.
+    ; so it depends on the order how the replacement rules appear (the first one 'wins')
+    (replace-manyN '((i you) (me you) (am are) (my your) (are am) (your my) (you i))
     phrase) )
 
 (define (pick-random lst)
@@ -90,4 +108,3 @@
   (else
     (nth (- n 1) (cdr lst)))))
 
-(visit-doctor 'simon)
