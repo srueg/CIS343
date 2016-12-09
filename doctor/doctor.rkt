@@ -31,11 +31,54 @@
 ((write (reply user-response))
                   (doctor-driver-loop name))))
  
-(define (reply user-response) 
+(define (reply user-response)
+  (cond ((has-answer user-response)
+         (get-answer user-response))
+  (else
     (cond ((fifty-fifty)
         (append (qualifier) 
         (change-person user-response))) 
-    (else (hedge))))
+    (else (hedge))))))
+
+(define responses
+  '(((depressed sad)
+     ((when you feel depressed go out for ice cream)
+      (depression is a disease that can be treated)))
+    ((health sick healthy ill)
+     ((you should see a doctor)
+      (since when do you feel ill)
+      (i can give you medicine))) 
+    ((mother father parents)
+     ((tell me more about your family)
+     (why do you feel that way about your parents)))))
+
+(define (get-answer input)
+  (cond ((find-key (car input) responses) (get-response (car input) responses))
+   (else (get-answer (cdr input)))))
+
+(define (get-response key responses)
+  (cond ((find-innerkey key (caar responses)) (rand-response (cdar responses)))
+   (else (get-response key (cdr responses)))))
+
+(define (rand-response responses)
+  (pick-random (car responses)))
+
+(define (has-answer input)
+  (cond ((null? input) #f)
+        ((find-key (car input) responses) #t)
+   (else (has-answer (cdr input)))
+        ))
+
+(define (find-key key keys)
+  (cond ((null? keys) #f)
+        ((find-innerkey key (caar keys)) #t)
+   (else (find-key key (cdr keys)))))
+
+(define (find-innerkey key keys)
+  (cond ((null? keys) #f)
+        ((equal? (car keys) key) #t)
+   (else (find-innerkey key (cdr keys)))))
+  
 
 (define (fifty-fifty) (= (random 2) 0))
 
