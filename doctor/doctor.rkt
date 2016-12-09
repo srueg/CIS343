@@ -1,4 +1,6 @@
 #lang racket
+
+
 (define (visit-doctor name) 
    ( (write (list 'hello name)) 
     (write '(what seems to be the trouble?)) 
@@ -16,6 +18,13 @@
                  (else
                   (go-on name user-response )
                   ))))))
+
+(define ask-patient-name
+  (lambda ()
+    (print '(next))
+    (print '(who are you))
+    (car (read))))
+
          
 (define go-on
   (lambda (name user-response)
@@ -108,3 +117,11 @@
   (else
     (nth (- n 1) (cdr lst)))))
 
+(define main-loop
+  (lambda ()
+    (let ((name (ask-patient-name)))
+      (begin (visit-doctor name)
+      (main-loop))
+      )
+  ))
+(main-loop)
