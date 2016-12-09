@@ -164,7 +164,7 @@
   (lambda ()
     (let ((name (ask-patient-name)))
       (begin (visit-doctor name)
-      (main-loop))
+             (main-loop))
       )
   ))
 (main-loop)
